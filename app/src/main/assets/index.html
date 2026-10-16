@@ -1,0 +1,41 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Viral Studio 3.0</title><style>
+*{box-sizing:border-box}body{margin:0;background:#08080a;color:#fff;font-family:Arial}header{padding:15px;background:#121217;position:sticky;top:0;z-index:3}main{padding:14px;max-width:700px;margin:auto}.p{background:#121217;border:1px solid #292930;border-radius:18px;padding:14px;margin-bottom:14px}
+h1{margin:0;font-size:21px}.s{color:#aaa;font-size:12px}label{display:block;color:#bbb;font-size:12px;margin:10px 0 6px}
+textarea,select,button{width:100%;padding:12px;border-radius:12px;border:1px solid #36363e;background:#1b1b21;color:#fff;font-size:15px}textarea{min-height:100px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}canvas{width:100%;max-width:405px;aspect-ratio:9/16;display:block;margin:12px auto;border-radius:15px;background:#111}
+button.primary{background:#fff;color:#111;font-weight:bold}.small{font-size:11px;color:#999;line-height:1.4}.bar{height:7px;background:#fff;width:0}
+.track{background:#292930;border-radius:9px;overflow:hidden}
+</style></head><body><header><h1>🎬 Viral Studio 3.0</h1><div class=s>Reels 9:16 · 15–60 segundos · Android</div></header><main>
+<div class=p><label>Frase</label><textarea id=q>Aunque avances lento, sigues avanzando. Y eso también cuenta.</textarea>
+<div class=row><div><label>Categoría</label><select id=cat><option>Motivación</option><option>Reflexión</option><option>Amor propio</option><option>Éxito</option><option>Superación</option></select></div>
+<div><label>Duración</label><select id=d><option>15</option><option>20</option><option>30</option><option>45</option><option selected>60</option></select></div></div>
+<div class=row><div><label>Movimiento</label><select id=m><option>zoom</option><option>pan</option><option>pulse</option><option>dynamic</option></select></div>
+<div><label>Transición</label><select id=t><option>fade</option><option>slide</option><option>flash</option></select></div></div>
+<label>Fondo</label><div class=row><button id=bg>✨ Fondo sugerido</button><button id=pick>📷 Imagen del teléfono</button></div>
+<input id=file type=file accept="image/*" hidden>
+<label>Música</label><div class=row><button id=audio>🎵 Elegir música</button><button id=ambient>🎼 Ambiente</button></div>
+<input id=afile type=file accept="audio/*" hidden>
+<p class=small>Usa música que tengas derecho a publicar. El fondo sugerido requiere internet.</p></div>
+<div class=p><canvas id=c width=1080 height=1920></canvas><div class=track><div class=bar id=bar></div></div>
+<p id=st class=small>Listo.</p><div class=row><button id=prev>▶ Vista previa</button><button id=rec class=primary>● Crear Reel</button></div>
+<div class=row><button id=png>⬇ PNG</button><button id=stop disabled>■ Detener</button></div>
+</div></main>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),W=1080,H=1920;let im=null,playing=false,rec=null,chunks=[],audio=null;
+function wrap(s,n){let a=[],l='';for(let w of s.split(/\s+/)){let z=l?l+' '+w:w;if(x.measureText(z).width>n&&l){a.push(l);l=w}else l=z}if(l)a.push(l);return a}
+function draw(p){x.clearRect(0,0,W,H);if(im){let sc=Math.max(W/im.width,H/im.height),m=document.getElementById('m').value;if(m==='zoom'||m==='pulse')sc*=1+.1*p;let sw=im.width*sc,sh=im.height*sc,px=m==='pan'?100*Math.sin(p*Math.PI*2):0;x.drawImage(im,(W-sw)/2+px,(H-sh)/2,sw,sh)}else{x.fillStyle='#20242a';x.fillRect(0,0,W,H)}
+let g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'rgba(0,0,0,.2)');g.addColorStop(1,'rgba(0,0,0,.85)');x.fillStyle=g;x.fillRect(0,0,W,H);
+let q=document.getElementById('q').value,fs=78;x.font='bold '+fs+'px Arial';x.textAlign='center';x.textBaseline='middle';let lines=wrap(q,850),n=Math.max(1,Math.min(lines.length,Math.floor(p*lines.length*1.3)+1)),shown=lines.slice(0,n),lh=92,yy=H/2-(shown.length-1)*lh/2;
+x.shadowColor='#000';x.shadowBlur=22;x.fillStyle='#fff';shown.forEach((l,i)=>{x.globalAlpha=i===shown.length-1?Math.min(1,(p*lines.length*1.3)%1*2):1;x.fillText(l,W/2,yy+i*lh)});x.globalAlpha=1;x.shadowBlur=0;x.font='bold 28px Arial';x.fillText('VIRAL STUDIO 3.0',W/2,H-105);x.font='22px Arial';x.fillStyle='#bbb';x.fillText(document.getElementById('cat').value.toUpperCase(),W/2,H-65);document.getElementById('bar').style.width=(p*100)+'%'}
+function loop(){if(!playing)return;let t=(performance.now()-window.st)/1000,du=+document.getElementById('d').value;draw(Math.min(1,t/du));if(t<du)requestAnimationFrame(loop);else playing=false}
+pick.onclick=()=>file.click();file.onchange=e=>{let r=new FileReader();r.onload=()=>{let z=new Image();z.onload=()=>{im=z;draw(0)};z.src=r.result};if(e.target.files[0])r.readAsDataURL(e.target.files[0])};
+bg.onclick=()=>{let u=['https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1080&q=85','https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1080&q=85','https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1080&q=85'][Math.floor(Math.random()*3)],z=new Image();z.crossOrigin='anonymous';z.onload=()=>{im=z;draw(0);st.textContent='Fondo seleccionado.'};z.src=u};
+audio.onclick=()=>afile.click();afile.onchange=e=>{if(e.target.files[0]){audio=new Audio(URL.createObjectURL(e.target.files[0]));audio.loop=true;audio.volume=.5}};
+prev.onclick=()=>{playing=true;window.st=performance.now();loop()};
+png.onclick=()=>{draw(0);let a=document.createElement('a');a.download='viral-studio.png';a.href=c.toDataURL('image/png');a.click()};
+rec.onclick=()=>{let du=+d.value,chunks=[],stream=c.captureStream(30);try{rec=new MediaRecorder(stream,{mimeType:MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')?'video/webm;codecs=vp9,opus':'video/webm',videoBitsPerSecond:5000000})}catch(e){st.textContent='Este teléfono/WebView no permite esta grabación.';return}
+rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};rec.onstop=()=>{let b=new Blob(chunks,{type:'video/webm'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='viral-reel-'+du+'s.webm';a.click();st.textContent='Reel terminado.';stop.disabled=true};rec.start(500);stop.disabled=false;playing=true;window.st=performance.now();loop();if(audio)audio.play().catch(()=>{});st.textContent='Creando Reel de '+du+' segundos...';setTimeout(()=>{if(rec&&rec.state==='recording')rec.stop();if(audio)audio.pause();playing=false},du*1000+300)};
+stop.onclick=()=>{playing=false;if(rec&&rec.state==='recording')rec.stop();if(audio)audio.pause()};
+draw(0);
+</script></body></html>
